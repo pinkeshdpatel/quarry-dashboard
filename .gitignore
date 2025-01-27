@@ -16,6 +16,17 @@
 .env.development.local
 .env.test.local
 .env.production.local
+server/.env
+server/credentials.json
+
+# Logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
 
 # Editor directories and files
 .vscode/*
@@ -27,11 +38,3 @@
 *.njsproj
 *.sln
 *.sw?
-
-# Logs
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
-pnpm-debug.log*
-logs
-*.log
