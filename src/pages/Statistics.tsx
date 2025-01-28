@@ -27,7 +27,7 @@ const Statistics = () => {
         transactions: 0,
       };
     }
-    acc[monthYear].revenue += transaction.amount || 0;
+    acc[monthYear].revenue += transaction.sale_price || 0;
     acc[monthYear].profit += transaction.profit || 0;
     acc[monthYear].transactions += 1;
     return acc;
@@ -42,16 +42,17 @@ const Statistics = () => {
 
   // Process data for material types
   const materialStats = transactionsData?.reduce((acc: any, transaction: any) => {
-    if (!acc[transaction.material_type]) {
-      acc[transaction.material_type] = {
+    const materialType = transaction.material_type || 'Unknown';
+    if (!acc[materialType]) {
+      acc[materialType] = {
         quantity: 0,
         revenue: 0,
         count: 0,
       };
     }
-    acc[transaction.material_type].quantity += transaction.quantity || 0;
-    acc[transaction.material_type].revenue += transaction.amount || 0;
-    acc[transaction.material_type].count += 1;
+    acc[materialType].quantity += transaction.limestone_rate || 0;
+    acc[materialType].revenue += transaction.sale_price || 0;
+    acc[materialType].count += 1;
     return acc;
   }, {});
 
@@ -63,21 +64,22 @@ const Statistics = () => {
   }));
 
   // Calculate summary statistics
-  const totalRevenue = transactionsData?.reduce((sum: number, t: any) => sum + (t.amount || 0), 0) || 0;
+  const totalRevenue = transactionsData?.reduce((sum: number, t: any) => sum + (t.sale_price || 0), 0) || 0;
   const totalProfit = transactionsData?.reduce((sum: number, t: any) => sum + (t.profit || 0), 0) || 0;
-  const totalQuantity = transactionsData?.reduce((sum: number, t: any) => sum + (t.quantity || 0), 0) || 0;
+  const totalQuantity = transactionsData?.reduce((sum: number, t: any) => sum + (t.limestone_rate || 0), 0) || 0;
   const averageOrderValue = totalRevenue / (transactionsData?.length || 1);
 
   // Process customer data
   const customerStats = transactionsData?.reduce((acc: any, transaction: any) => {
-    if (!acc[transaction.customer_name]) {
-      acc[transaction.customer_name] = {
+    const customerName = transaction.sale_to || 'Unknown';
+    if (!acc[customerName]) {
+      acc[customerName] = {
         revenue: 0,
         transactions: 0,
       };
     }
-    acc[transaction.customer_name].revenue += transaction.amount || 0;
-    acc[transaction.customer_name].transactions += 1;
+    acc[customerName].revenue += transaction.sale_price || 0;
+    acc[customerName].transactions += 1;
     return acc;
   }, {});
 
@@ -123,7 +125,7 @@ const Statistics = () => {
               <CartesianGrid strokeDasharray="3 3" />
               <XAxis dataKey="month" />
               <YAxis />
-              <Tooltip />
+              <Tooltip formatter={(value) => `₹${value.toLocaleString()}`} />
               <Legend />
               <Line type="monotone" dataKey="revenue" stroke="#10B981" name="Revenue" />
               <Line type="monotone" dataKey="profit" stroke="#3B82F6" name="Profit" />
@@ -141,11 +143,15 @@ const Statistics = () => {
               <BarChart data={materialData}>
                 <CartesianGrid strokeDasharray="3 3" />
                 <XAxis dataKey="material" />
-                <YAxis />
-                <Tooltip />
+                <YAxis yAxisId="left" orientation="left" stroke="#10B981" />
+                <YAxis yAxisId="right" orientation="right" stroke="#3B82F6" />
+                <Tooltip formatter={(value, name) => [
+                  name === "quantity" ? `${value.toLocaleString()} tons` : `₹${value.toLocaleString()}`,
+                  name === "quantity" ? "Quantity" : "Revenue"
+                ]} />
                 <Legend />
-                <Bar dataKey="quantity" fill="#10B981" name="Quantity" />
-                <Bar dataKey="revenue" fill="#3B82F6" name="Revenue" />
+                <Bar yAxisId="left" dataKey="quantity" fill="#10B981" name="Quantity" />
+                <Bar yAxisId="right" dataKey="revenue" fill="#3B82F6" name="Revenue" />
               </BarChart>
             </ResponsiveContainer>
           </div>
@@ -170,7 +176,7 @@ const Statistics = () => {
                     <Cell key={entry.name} fill={COLORS[index % COLORS.length]} />
                   ))}
                 </Pie>
-                <Tooltip />
+                <Tooltip formatter={(value) => `₹${value.toLocaleString()}`} />
                 <Legend />
               </PieChart>
             </ResponsiveContainer>
@@ -188,7 +194,7 @@ const Statistics = () => {
               <thead>
                 <tr className="border-b">
                   <th className="text-left py-2">Material</th>
-                  <th className="text-right py-2">Quantity</th>
+                  <th className="text-right py-2">Quantity (tons)</th>
                   <th className="text-right py-2">Revenue</th>
                   <th className="text-right py-2">Orders</th>
                 </tr>
