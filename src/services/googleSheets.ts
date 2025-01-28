@@ -25,17 +25,6 @@ class GoogleSheetsService {
     }
   }
 
-  async getFleet() {
-    try {
-      const response = await fetch(`${API_URL}/api/fleet`);
-      const data = await response.json();
-      return data;
-    } catch (error) {
-      console.error('Error fetching fleet:', error);
-      return [];
-    }
-  }
-
   async getTransactions() {
     try {
       const response = await fetch(`${API_URL}/api/transactions`);

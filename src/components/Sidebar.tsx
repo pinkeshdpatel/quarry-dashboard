@@ -18,7 +18,7 @@ const Sidebar = () => {
   };
 
   return (
-    <div className="w-64 bg-emerald-900 text-white h-screen p-4">
+    <div className="bg-emerald-900 text-white w-64 space-y-6 py-7 px-2 absolute inset-y-0 left-0 transform -translate-x-full md:relative md:translate-x-0 transition duration-200 ease-in-out">
       <div className="mb-8">
         <Link to="/" className="text-2xl font-bold flex items-center">
           <Truck className="mr-2" />
@@ -33,12 +33,14 @@ const Sidebar = () => {
             <li>
               <Link
                 to="/"
-                className={`flex items-center p-2 rounded-lg ${
+                className={`block py-2.5 px-4 rounded transition duration-200 ${
                   isActive('/') ? 'bg-emerald-800' : 'hover:bg-emerald-800'
                 }`}
               >
-                <LayoutDashboard className="mr-3" size={20} />
-                Overview
+                <div className="flex items-center space-x-2">
+                  <LayoutDashboard size={20} />
+                  <span>Dashboard</span>
+                </div>
               </Link>
             </li>
             <li>
@@ -55,34 +57,27 @@ const Sidebar = () => {
             <li>
               <Link
                 to="/customers"
-                className={`flex items-center p-2 rounded-lg ${
+                className={`block py-2.5 px-4 rounded transition duration-200 ${
                   isActive('/customers') ? 'bg-emerald-800' : 'hover:bg-emerald-800'
                 }`}
               >
-                <Users className="mr-3" size={20} />
-                Customers
-              </Link>
-            </li>
-            <li>
-              <Link
-                to="/fleet"
-                className={`flex items-center p-2 rounded-lg ${
-                  isActive('/fleet') ? 'bg-emerald-800' : 'hover:bg-emerald-800'
-                }`}
-              >
-                <Truck className="mr-3" size={20} />
-                Fleet
+                <div className="flex items-center space-x-2">
+                  <Users size={20} />
+                  <span>Customers</span>
+                </div>
               </Link>
             </li>
             <li>
               <Link
                 to="/transactions"
-                className={`flex items-center p-2 rounded-lg ${
+                className={`block py-2.5 px-4 rounded transition duration-200 ${
                   isActive('/transactions') ? 'bg-emerald-800' : 'hover:bg-emerald-800'
                 }`}
               >
-                <Receipt className="mr-3" size={20} />
-                Transactions
+                <div className="flex items-center space-x-2">
+                  <Receipt size={20} />
+                  <span>Transactions</span>
+                </div>
               </Link>
             </li>
           </ul>

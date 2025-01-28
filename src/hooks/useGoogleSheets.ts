@@ -1,15 +1,14 @@
 import { useState, useEffect } from 'react';
 import { googleSheetsService } from '../services/googleSheets';
 
-export function useGoogleSheets<T>(dataType: 'stats' | 'customers' | 'fleet' | 'transactions') {
-  const [data, setData] = useState<T[]>([]);
+export function useGoogleSheets<T>(dataType: 'stats' | 'customers' | 'transactions') {
+  const [data, setData] = useState<T | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<Error | null>(null);
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        setLoading(true);
         let result;
         switch (dataType) {
           case 'stats':
@@ -18,16 +17,16 @@ export function useGoogleSheets<T>(dataType: 'stats' | 'customers' | 'fleet' | '
           case 'customers':
             result = await googleSheetsService.getCustomers();
             break;
-          case 'fleet':
-            result = await googleSheetsService.getFleet();
-            break;
           case 'transactions':
             result = await googleSheetsService.getTransactions();
             break;
+          default:
+            throw new Error(`Invalid data type: ${dataType}`);
         }
-        setData(result as T[]);
+        setData(result);
+        setError(null);
       } catch (err) {
-        setError(err as Error);
+        setError(err instanceof Error ? err : new Error('An error occurred'));
       } finally {
         setLoading(false);
       }
@@ -41,7 +40,7 @@ export function useGoogleSheets<T>(dataType: 'stats' | 'customers' | 'fleet' | '
       await googleSheetsService.updateData(range, values);
       // Refresh data after update
       const result = await googleSheetsService.getTransactions();
-      setData(result as T[]);
+      setData(result as T);
     } catch (err) {
       setError(err as Error);
       throw err;

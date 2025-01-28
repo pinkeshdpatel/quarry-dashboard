@@ -1,26 +1,20 @@
-import React from 'react';
-import { Routes, Route } from 'react-router-dom';
-import Sidebar from './components/Sidebar';
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import Layout from './components/Layout';
 import Dashboard from './pages/Dashboard';
-import Statistics from './pages/Statistics';
 import Customers from './pages/Customers';
-import Fleet from './pages/Fleet';
 import Transactions from './pages/Transactions';
-import Settings from './pages/Settings';
 
 function App() {
   return (
-    <div className="flex min-h-screen bg-gray-100">
-      <Sidebar />
+    <Router>
       <Routes>
-        <Route path="/" element={<Dashboard />} />
-        <Route path="/statistics" element={<Statistics />} />
-        <Route path="/customers" element={<Customers />} />
-        <Route path="/fleet" element={<Fleet />} />
-        <Route path="/transactions" element={<Transactions />} />
-        <Route path="/settings" element={<Settings />} />
+        <Route path="/" element={<Layout />}>
+          <Route index element={<Dashboard />} />
+          <Route path="/customers" element={<Customers />} />
+          <Route path="/transactions" element={<Transactions />} />
+        </Route>
       </Routes>
-    </div>
+    </Router>
   );
 }
 
