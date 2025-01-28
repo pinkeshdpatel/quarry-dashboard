@@ -1,11 +1,11 @@
 import { QuarryData } from '../types';
 
-const API_URL = 'http://localhost:3001/api';
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001';
 
 class GoogleSheetsService {
   async getStats() {
     try {
-      const response = await fetch(`${API_URL}/stats`);
+      const response = await fetch(`${API_URL}/api/stats`);
       const data = await response.json();
       return data;
     } catch (error) {
@@ -16,7 +16,7 @@ class GoogleSheetsService {
 
   async getCustomers() {
     try {
-      const response = await fetch(`${API_URL}/customers`);
+      const response = await fetch(`${API_URL}/api/customers`);
       const data = await response.json();
       return data;
     } catch (error) {
@@ -27,7 +27,7 @@ class GoogleSheetsService {
 
   async getFleet() {
     try {
-      const response = await fetch(`${API_URL}/fleet`);
+      const response = await fetch(`${API_URL}/api/fleet`);
       const data = await response.json();
       return data;
     } catch (error) {
@@ -38,7 +38,7 @@ class GoogleSheetsService {
 
   async getTransactions() {
     try {
-      const response = await fetch(`${API_URL}/transactions`);
+      const response = await fetch(`${API_URL}/api/transactions`);
       const data = await response.json();
       return data;
     } catch (error) {
@@ -49,7 +49,7 @@ class GoogleSheetsService {
 
   async updateData(range: string, values: any[][]) {
     try {
-      const response = await fetch(`${API_URL}/update`, {
+      const response = await fetch(`${API_URL}/api/update`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
