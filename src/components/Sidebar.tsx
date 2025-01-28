@@ -1,13 +1,9 @@
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { 
-  LayoutDashboard, 
-  BarChart2, 
-  Users, 
-  Truck, 
-  Receipt, 
-  Settings, 
-  Shield 
+  LayoutDashboard,
+  Users,
+  Receipt
 } from 'lucide-react';
 
 const Sidebar = () => {
@@ -21,7 +17,6 @@ const Sidebar = () => {
     <div className="bg-emerald-900 text-white w-64 space-y-6 py-7 px-2 absolute inset-y-0 left-0 transform -translate-x-full md:relative md:translate-x-0 transition duration-200 ease-in-out">
       <div className="mb-8">
         <Link to="/" className="text-2xl font-bold flex items-center">
-          <Truck className="mr-2" />
           QuarryDash
         </Link>
       </div>
@@ -41,17 +36,6 @@ const Sidebar = () => {
                   <LayoutDashboard size={20} />
                   <span>Dashboard</span>
                 </div>
-              </Link>
-            </li>
-            <li>
-              <Link
-                to="/statistics"
-                className={`flex items-center p-2 rounded-lg ${
-                  isActive('/statistics') ? 'bg-emerald-800' : 'hover:bg-emerald-800'
-                }`}
-              >
-                <BarChart2 className="mr-3" size={20} />
-                Statistics
               </Link>
             </li>
             <li>
@@ -78,23 +62,6 @@ const Sidebar = () => {
                   <Receipt size={20} />
                   <span>Transactions</span>
                 </div>
-              </Link>
-            </li>
-          </ul>
-        </nav>
-
-        <h2 className="text-xs uppercase text-gray-400 font-semibold mt-8">GENERAL</h2>
-        <nav>
-          <ul className="space-y-2">
-            <li>
-              <Link
-                to="/settings"
-                className={`flex items-center p-2 rounded-lg ${
-                  isActive('/settings') ? 'bg-emerald-800' : 'hover:bg-emerald-800'
-                }`}
-              >
-                <Settings className="mr-3" size={20} />
-                Settings
               </Link>
             </li>
           </ul>
