@@ -3,7 +3,9 @@ import { Link, useLocation } from 'react-router-dom';
 import { 
   LayoutDashboard,
   Users,
-  Receipt
+  Receipt,
+  BarChart2,
+  Settings as SettingsIcon
 } from 'lucide-react';
 
 const Sidebar = () => {
@@ -40,6 +42,19 @@ const Sidebar = () => {
             </li>
             <li>
               <Link
+                to="/statistics"
+                className={`block py-2.5 px-4 rounded transition duration-200 ${
+                  isActive('/statistics') ? 'bg-emerald-800' : 'hover:bg-emerald-800'
+                }`}
+              >
+                <div className="flex items-center space-x-2">
+                  <BarChart2 size={20} />
+                  <span>Statistics</span>
+                </div>
+              </Link>
+            </li>
+            <li>
+              <Link
                 to="/customers"
                 className={`block py-2.5 px-4 rounded transition duration-200 ${
                   isActive('/customers') ? 'bg-emerald-800' : 'hover:bg-emerald-800'
@@ -61,6 +76,25 @@ const Sidebar = () => {
                 <div className="flex items-center space-x-2">
                   <Receipt size={20} />
                   <span>Transactions</span>
+                </div>
+              </Link>
+            </li>
+          </ul>
+        </nav>
+
+        <h2 className="text-xs uppercase text-gray-400 font-semibold mt-8">GENERAL</h2>
+        <nav>
+          <ul className="space-y-2">
+            <li>
+              <Link
+                to="/settings"
+                className={`block py-2.5 px-4 rounded transition duration-200 ${
+                  isActive('/settings') ? 'bg-emerald-800' : 'hover:bg-emerald-800'
+                }`}
+              >
+                <div className="flex items-center space-x-2">
+                  <SettingsIcon size={20} />
+                  <span>Settings</span>
                 </div>
               </Link>
             </li>

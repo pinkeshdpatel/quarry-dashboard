@@ -102,105 +102,92 @@ function Settings() {
     console.log('Manual sync triggered');
   };
 
+  const [notifications, setNotifications] = useState(true);
+  const [emailReports, setEmailReports] = useState(false);
+  const [darkMode, setDarkMode] = useState(false);
+
   return (
-    <div className="flex-1 p-8">
-      <div className="flex justify-between items-center mb-8">
-        <div className="flex items-center gap-3">
-          <SettingsIcon className="w-8 h-8 text-gray-600" />
+    <div className="space-y-8">
+      <h1 className="text-2xl font-bold mb-6">Settings</h1>
+
+      <div className="bg-white p-6 rounded-lg shadow space-y-6">
+        <h2 className="text-xl font-semibold mb-4">Preferences</h2>
+
+        {/* Notifications Setting */}
+        <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-2xl font-bold">Settings</h1>
-            <p className="text-gray-600">Configure application preferences</p>
+            <h3 className="font-medium">Notifications</h3>
+            <p className="text-gray-600 text-sm">Receive notifications about important updates</p>
           </div>
+          <label className="relative inline-flex items-center cursor-pointer">
+            <input
+              type="checkbox"
+              className="sr-only peer"
+              checked={notifications}
+              onChange={(e) => setNotifications(e.target.checked)}
+            />
+            <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-emerald-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-emerald-600"></div>
+          </label>
         </div>
-        <div className="flex gap-4">
-          <button
-            onClick={handleSync}
-            className="flex items-center gap-2 px-4 py-2 text-gray-700 bg-white border rounded-lg hover:bg-gray-50"
-          >
-            <RefreshCw className="w-4 h-4" />
-            Sync Now
-          </button>
-          <button
-            onClick={handleSave}
-            className="flex items-center gap-2 px-4 py-2 text-white bg-blue-600 rounded-lg hover:bg-blue-700"
-          >
-            <Save className="w-4 h-4" />
-            Save Changes
-          </button>
+
+        {/* Email Reports Setting */}
+        <div className="flex items-center justify-between pt-4 border-t">
+          <div>
+            <h3 className="font-medium">Email Reports</h3>
+            <p className="text-gray-600 text-sm">Receive daily summary reports via email</p>
+          </div>
+          <label className="relative inline-flex items-center cursor-pointer">
+            <input
+              type="checkbox"
+              className="sr-only peer"
+              checked={emailReports}
+              onChange={(e) => setEmailReports(e.target.checked)}
+            />
+            <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-emerald-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-emerald-600"></div>
+          </label>
+        </div>
+
+        {/* Dark Mode Setting */}
+        <div className="flex items-center justify-between pt-4 border-t">
+          <div>
+            <h3 className="font-medium">Dark Mode</h3>
+            <p className="text-gray-600 text-sm">Switch to dark theme</p>
+          </div>
+          <label className="relative inline-flex items-center cursor-pointer">
+            <input
+              type="checkbox"
+              className="sr-only peer"
+              checked={darkMode}
+              onChange={(e) => setDarkMode(e.target.checked)}
+            />
+            <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-emerald-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-emerald-600"></div>
+          </label>
         </div>
       </div>
 
-      <div className="space-y-6">
-        {settings.map((section, sectionIndex) => (
-          <div key={section.title} className="bg-white p-6 rounded-xl shadow-sm">
-            <h2 className="text-xl font-semibold mb-2">{section.title}</h2>
-            <p className="text-gray-600 mb-6">{section.description}</p>
-            
-            <div className="space-y-6">
-              {section.fields.map((field) => (
-                <div key={field.id} className="flex flex-col gap-2">
-                  <label htmlFor={field.id} className="font-medium">
-                    {field.label}
-                  </label>
-                  
-                  {field.type === 'text' && (
-                    <input
-                      type="text"
-                      id={field.id}
-                      className="border rounded-lg px-4 py-2 w-full max-w-md"
-                      value={field.value as string}
-                      onChange={(e) => handleFieldChange(sectionIndex, field.id, e.target.value)}
-                    />
-                  )}
-                  
-                  {field.type === 'number' && (
-                    <input
-                      type="number"
-                      id={field.id}
-                      className="border rounded-lg px-4 py-2 w-full max-w-md"
-                      value={field.value as number}
-                      onChange={(e) => handleFieldChange(sectionIndex, field.id, Number(e.target.value))}
-                    />
-                  )}
-                  
-                  {field.type === 'select' && (
-                    <select
-                      id={field.id}
-                      className="border rounded-lg px-4 py-2 w-full max-w-md"
-                      value={field.value as string}
-                      onChange={(e) => handleFieldChange(sectionIndex, field.id, e.target.value)}
-                    >
-                      {field.options?.map((option) => (
-                        <option key={option.value} value={option.value}>
-                          {option.label}
-                        </option>
-                      ))}
-                    </select>
-                  )}
-                  
-                  {field.type === 'toggle' && (
-                    <label className="relative inline-flex items-center cursor-pointer">
-                      <input
-                        type="checkbox"
-                        className="sr-only peer"
-                        checked={field.value as boolean}
-                        onChange={(e) => handleFieldChange(sectionIndex, field.id, e.target.checked)}
-                      />
-                      <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
-                      <span className="ml-3 text-sm font-medium text-gray-900">
-                        {field.value ? 'Enabled' : 'Disabled'}
-                      </span>
-                    </label>
-                  )}
-                  
-                  {field.description && (
-                    <p className="text-sm text-gray-500">{field.description}</p>
-                  )}
-                </div>
-              ))}
-            </div>
+      <div className="bg-white p-6 rounded-lg shadow space-y-6">
+        <h2 className="text-xl font-semibold mb-4">Account Information</h2>
+        <div className="space-y-4">
+          <div>
+            <label className="block text-sm font-medium text-gray-700">Email</label>
+            <input
+              type="email"
+              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-emerald-500 focus:ring-emerald-500"
+              placeholder="your@email.com"
+            />
           </div>
-        ))}
+          <div>
+            <label className="block text-sm font-medium text-gray-700">Password</label>
+            <input
+              type="password"
+              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-emerald-500 focus:ring-emerald-500"
+              placeholder="••••••••"
+            />
+          </div>
+          <button className="bg-emerald-600 text-white px-4 py-2 rounded-md hover:bg-emerald-700 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2">
+            Update Account
+          </button>
+        </div>
       </div>
     </div>
   );
