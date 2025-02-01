@@ -132,12 +132,63 @@ const Statistics = () => {
 
   // Process manager data with detailed logging
   const managerStats = transactions?.reduce((acc: Record<string, ManagerStats>, transaction: QuarryData) => {
-    // Only process transactions that have manager data
-    if (!transaction['Manager Name'] || !transaction['Managers expenses']) {
+    // Try different possible column names for manager data
+    const managerName = 
+      transaction['Manager Name'] || 
+      transaction['manager name'] || 
+      transaction['Manager name'] ||
+      transaction['MANAGER NAME'] ||
+      transaction['manager_name'];
+
+    const managerExpense = Number(
+      transaction['Managers expenses'] || 
+      transaction['managers expenses'] || 
+      transaction['Managers Expenses'] ||
+      transaction['MANAGERS EXPENSES'] || 
+      transaction['managers_expenses'] ||
+      0
+    );
+
+    const salary = Number(
+      transaction['Manager Salary'] ||
+      transaction['manager salary'] ||
+      transaction['Manager salary'] ||
+      transaction['MANAGER SALARY'] ||
+      transaction['manager_salary'] ||
+      0
+    );
+
+    const foodAllowance = Number(
+      transaction['Manager weekly food allowance'] ||
+      transaction['manager weekly food allowance'] ||
+      transaction['Manager Weekly Food Allowance'] ||
+      transaction['MANAGER WEEKLY FOOD ALLOWANCE'] ||
+      transaction['manager_weekly_food_allowance'] ||
+      0
+    );
+
+    const travelAllowance = Number(
+      transaction['Manager weekly travel allowance'] ||
+      transaction['manager weekly travel allowance'] ||
+      transaction['Manager Weekly Travel Allowance'] ||
+      transaction['MANAGER WEEKLY TRAVEL ALLOWANCE'] ||
+      transaction['manager_weekly_travel_allowance'] ||
+      0
+    );
+
+    console.log('Processing transaction:', {
+      managerName,
+      managerExpense,
+      salary,
+      foodAllowance,
+      travelAllowance,
+      raw: transaction
+    });
+
+    if (!managerName || (!managerExpense && !salary && !foodAllowance && !travelAllowance)) {
       return acc;
     }
 
-    const managerName = transaction['Manager Name'];
     if (!acc[managerName]) {
       acc[managerName] = {
         salary: 0,
@@ -147,27 +198,20 @@ const Statistics = () => {
         transactions: 0,
       };
     }
-    
-    const managerExpense = Number(transaction['Managers expenses']);
-    const salary = Number(transaction['Manager Salary']);
-    const foodAllowance = Number(transaction['Manager weekly food allowance']);
-    const travelAllowance = Number(transaction['Manager weekly travel allowance']);
 
     if (!isNaN(managerExpense) && managerExpense > 0) {
-      console.log('Found valid manager expense:', {
-        manager: managerName,
-        expense: managerExpense,
-        salary,
-        foodAllowance,
-        travelAllowance
-      });
-
       acc[managerName].total_expenses += managerExpense;
-      acc[managerName].salary += !isNaN(salary) ? salary : 0;
-      acc[managerName].food_allowance += !isNaN(foodAllowance) ? foodAllowance : 0;
-      acc[managerName].travel_allowance += !isNaN(travelAllowance) ? travelAllowance : 0;
-      acc[managerName].transactions += 1;
     }
+    if (!isNaN(salary) && salary > 0) {
+      acc[managerName].salary += salary;
+    }
+    if (!isNaN(foodAllowance) && foodAllowance > 0) {
+      acc[managerName].food_allowance += foodAllowance;
+    }
+    if (!isNaN(travelAllowance) && travelAllowance > 0) {
+      acc[managerName].travel_allowance += travelAllowance;
+    }
+    acc[managerName].transactions += 1;
 
     return acc;
   }, {});

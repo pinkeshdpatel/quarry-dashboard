@@ -35,7 +35,18 @@ function Dashboard() {
 
   // Add manager expenses to breakdown if they exist
   const managerExpensesTotal = transactions.reduce((sum, item) => {
-    const expense = Number(item['Managers expenses']);
+    // Try different possible column names
+    const expense = Number(
+      item['Managers expenses'] || 
+      item['managers expenses'] || 
+      item['Managers Expenses'] ||
+      item['MANAGERS EXPENSES'] || 
+      item['managers_expenses'] ||
+      0
+    );
+    console.log('Raw manager expense value:', item['Managers expenses'], 
+                'Alternative:', item['managers expenses'],
+                'Full item:', item);
     if (!isNaN(expense) && expense > 0) {
       return sum + expense;
     }
@@ -48,7 +59,14 @@ function Dashboard() {
 
   // Calculate total manager expenses
   const totalManagerExpenses = transactions.reduce((sum, item) => {
-    const expense = Number(item['Managers expenses']);
+    const expense = Number(
+      item['Managers expenses'] || 
+      item['managers expenses'] || 
+      item['Managers Expenses'] ||
+      item['MANAGERS EXPENSES'] || 
+      item['managers_expenses'] ||
+      0
+    );
     if (!isNaN(expense) && expense > 0) {
       console.log('Found manager expense:', expense, 'for item:', item);
       return sum + expense;
@@ -56,7 +74,7 @@ function Dashboard() {
     return sum;
   }, 0);
 
-  console.log('Total manager expenses:', totalManagerExpenses);
+  console.log('Total manager expenses:', totalManagerExpenses, 'Raw transactions:', transactions);
 
   // Prepare data for revenue trend
   const trendData = transactions.map(item => ({
