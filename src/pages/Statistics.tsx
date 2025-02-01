@@ -47,7 +47,7 @@ const Statistics = () => {
     acc[monthYear].revenue += transaction.sale_price || 0;
     acc[monthYear].profit += transaction.profit || 0;
     acc[monthYear].transactions += 1;
-    acc[monthYear].manager_expenses += transaction['Managers expenses'] || 0;
+    acc[monthYear].manager_expenses += Number(transaction['Managers expenses']) || 0;
     return acc;
   }, {});
 
@@ -87,7 +87,7 @@ const Statistics = () => {
   const totalRevenue = transactions?.reduce((sum: number, t: QuarryData) => sum + (t.sale_price || 0), 0) || 0;
   const totalProfit = transactions?.reduce((sum: number, t: QuarryData) => sum + (t.profit || 0), 0) || 0;
   const totalQuantity = transactions?.reduce((sum: number, t: QuarryData) => sum + (t.limestone_rate || 0), 0) || 0;
-  const totalManagerExpenses = transactions?.reduce((sum: number, t: QuarryData) => sum + (t['Managers expenses'] || 0), 0) || 0;
+  const totalManagerExpenses = transactions?.reduce((sum: number, t: QuarryData) => sum + (Number(t['Managers expenses']) || 0), 0) || 0;
   const averageOrderValue = totalRevenue / (transactions?.length || 1);
 
   // Process customer data
@@ -125,7 +125,7 @@ const Statistics = () => {
         transactions: 0,
       };
     }
-    acc[managerName].total_expenses += transaction['Managers expenses'] || 0;
+    acc[managerName].total_expenses += Number(transaction['Managers expenses']) || 0;
     acc[managerName].salary += transaction.manager_salary || 0;
     acc[managerName].food_allowance += transaction.manager_weekly_food_allowance || 0;
     acc[managerName].travel_allowance += transaction.manager_weekly_travel_allowance || 0;
@@ -142,7 +142,7 @@ const Statistics = () => {
 
   // Process expense breakdown
   const expenseBreakdown = [
-    { name: 'Total Manager Expenses', value: transactions?.reduce((sum: number, t: QuarryData) => sum + (t['Managers expenses'] || 0), 0) || 0 }
+    { name: 'Total Manager Expenses', value: transactions?.reduce((sum: number, t: QuarryData) => sum + (Number(t['Managers expenses']) || 0), 0) || 0 }
   ];
 
   return (
@@ -221,7 +221,8 @@ const Statistics = () => {
                   nameKey="name"
                   cx="50%"
                   cy="50%"
-                  outerRadius={100}
+                  outerRadius={80}
+                  labelLine={true}
                   label={(entry) => `${entry.name}: ₹${entry.value.toLocaleString()}`}
                 >
                   {expenseBreakdown.map((entry, index) => (
@@ -229,7 +230,7 @@ const Statistics = () => {
                   ))}
                 </Pie>
                 <Tooltip formatter={(value) => `₹${value.toLocaleString()}`} />
-                <Legend />
+                <Legend verticalAlign="bottom" height={36} />
               </PieChart>
             </ResponsiveContainer>
           </div>

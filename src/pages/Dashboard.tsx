@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Search, Bell } from 'lucide-react';
 import StatCard from '../components/StatCard';
 import TransactionList from '../components/TransactionList';
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, BarChart, Bar, PieChart, Pie, Cell } from 'recharts';
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, BarChart, Bar, PieChart, Pie, Cell, Legend } from 'recharts';
 import { useGoogleSheets } from '../hooks/useGoogleSheets';
 
 const COLORS = ['#8B5CF6', '#0EA5E9', '#059669', '#EC4899'];
@@ -24,15 +24,15 @@ function Dashboard() {
 
   // Calculate expense breakdown for pie chart
   const expenseBreakdown = [
-    { name: 'Maintenance', value: transactions.reduce((sum, item) => sum + (item.maintenace_expense || 0), 0) },
-    { name: 'Driver Allowance', value: transactions.reduce((sum, item) => sum + (item.driver_allownace || 0), 0) },
+    { name: 'Maintenance', value: transactions.reduce((sum, item) => sum + (item.maintenance_expense || 0), 0) },
+    { name: 'Driver Allowance', value: transactions.reduce((sum, item) => sum + (item.driver_allowance || 0), 0) },
     { name: 'Diesel', value: transactions.reduce((sum, item) => sum + (item.diesel || 0), 0) },
     { name: 'Fleet Charges', value: transactions.reduce((sum, item) => sum + (item.fleet_charges || 0), 0) },
-    { name: 'Manager Expenses', value: transactions.reduce((sum, item) => sum + (item['Managers expenses'] || 0), 0) }
+    { name: 'Manager Expenses', value: transactions.reduce((sum, item) => sum + (Number(item['Managers expenses']) || 0), 0) }
   ];
 
   // Calculate total manager expenses
-  const totalManagerExpenses = transactions.reduce((sum, item) => sum + (item['Managers expenses'] || 0), 0);
+  const totalManagerExpenses = transactions.reduce((sum, item) => sum + (Number(item['Managers expenses']) || 0), 0);
 
   // Prepare data for revenue trend
   const trendData = transactions.map(item => ({
@@ -168,9 +168,9 @@ function Dashboard() {
                   data={expenseBreakdown}
                   cx="50%"
                   cy="50%"
-                  labelLine={false}
+                  labelLine={true}
                   label={({ name, percent }) => `${name} (${(percent * 100).toFixed(0)}%)`}
-                  outerRadius={100}
+                  outerRadius={80}
                   fill="#8884d8"
                   dataKey="value"
                 >
@@ -178,7 +178,8 @@ function Dashboard() {
                     <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                   ))}
                 </Pie>
-                <Tooltip />
+                <Tooltip formatter={(value) => `₹${value.toLocaleString()}`} />
+                <Legend verticalAlign="bottom" height={36} />
               </PieChart>
             </ResponsiveContainer>
           </div>
