@@ -28,17 +28,11 @@ function Dashboard() {
     { name: 'Driver Allowance', value: transactions.reduce((sum, item) => sum + (item.driver_allownace || 0), 0) },
     { name: 'Diesel', value: transactions.reduce((sum, item) => sum + (item.diesel || 0), 0) },
     { name: 'Fleet Charges', value: transactions.reduce((sum, item) => sum + (item.fleet_charges || 0), 0) },
-    { name: 'Manager Salary', value: transactions.reduce((sum, item) => sum + (item.manager_salary || 0), 0) },
-    { name: 'Manager Food', value: transactions.reduce((sum, item) => sum + (item.manager_weekly_food_allowance || 0), 0) },
-    { name: 'Manager Travel', value: transactions.reduce((sum, item) => sum + (item.manager_weekly_travel_allowance || 0), 0) }
+    { name: 'Manager Expenses', value: transactions.reduce((sum, item) => sum + (item.managers_expenses || 0), 0) }
   ];
 
   // Calculate total manager expenses
-  const totalManagerExpenses = transactions.reduce((sum, item) => 
-    sum + (item.manager_salary || 0) + 
-    (item.manager_weekly_food_allowance || 0) + 
-    (item.manager_weekly_travel_allowance || 0), 0
-  );
+  const totalManagerExpenses = transactions.reduce((sum, item) => sum + (item.managers_expenses || 0), 0);
 
   // Prepare data for revenue trend
   const trendData = transactions.map(item => ({

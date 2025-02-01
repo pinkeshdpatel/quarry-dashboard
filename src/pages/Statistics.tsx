@@ -47,10 +47,7 @@ const Statistics = () => {
     acc[monthYear].revenue += transaction.sale_price || 0;
     acc[monthYear].profit += transaction.profit || 0;
     acc[monthYear].transactions += 1;
-    acc[monthYear].manager_expenses += 
-      (transaction.manager_salary || 0) + 
-      (transaction.manager_weekly_food_allowance || 0) + 
-      (transaction.manager_weekly_travel_allowance || 0);
+    acc[monthYear].manager_expenses += transaction.managers_expenses || 0;
     return acc;
   }, {});
 
@@ -90,11 +87,7 @@ const Statistics = () => {
   const totalRevenue = transactions?.reduce((sum: number, t: QuarryData) => sum + (t.sale_price || 0), 0) || 0;
   const totalProfit = transactions?.reduce((sum: number, t: QuarryData) => sum + (t.profit || 0), 0) || 0;
   const totalQuantity = transactions?.reduce((sum: number, t: QuarryData) => sum + (t.limestone_rate || 0), 0) || 0;
-  const totalManagerExpenses = transactions?.reduce((sum: number, t: QuarryData) => 
-    sum + (t.manager_salary || 0) + 
-    (t.manager_weekly_food_allowance || 0) + 
-    (t.manager_weekly_travel_allowance || 0), 0
-  ) || 0;
+  const totalManagerExpenses = transactions?.reduce((sum: number, t: QuarryData) => sum + (t.managers_expenses || 0), 0) || 0;
   const averageOrderValue = totalRevenue / (transactions?.length || 1);
 
   // Process customer data
@@ -132,13 +125,10 @@ const Statistics = () => {
         transactions: 0,
       };
     }
+    acc[managerName].total_expenses += transaction.managers_expenses || 0;
     acc[managerName].salary += transaction.manager_salary || 0;
     acc[managerName].food_allowance += transaction.manager_weekly_food_allowance || 0;
     acc[managerName].travel_allowance += transaction.manager_weekly_travel_allowance || 0;
-    acc[managerName].total_expenses += 
-      (transaction.manager_salary || 0) + 
-      (transaction.manager_weekly_food_allowance || 0) + 
-      (transaction.manager_weekly_travel_allowance || 0);
     acc[managerName].transactions += 1;
     return acc;
   }, {});
@@ -152,9 +142,7 @@ const Statistics = () => {
 
   // Process expense breakdown
   const expenseBreakdown = [
-    { name: 'Salary', value: transactions?.reduce((sum: number, t: QuarryData) => sum + (t.manager_salary || 0), 0) || 0 },
-    { name: 'Food Allowance', value: transactions?.reduce((sum: number, t: QuarryData) => sum + (t.manager_weekly_food_allowance || 0), 0) || 0 },
-    { name: 'Travel Allowance', value: transactions?.reduce((sum: number, t: QuarryData) => sum + (t.manager_weekly_travel_allowance || 0), 0) || 0 },
+    { name: 'Total Manager Expenses', value: transactions?.reduce((sum: number, t: QuarryData) => sum + (t.managers_expenses || 0), 0) || 0 }
   ];
 
   return (
