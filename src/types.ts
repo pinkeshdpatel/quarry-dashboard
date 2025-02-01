@@ -18,7 +18,7 @@ export interface QuarryData {
   manager_salary: number;
   manager_weekly_food_allowance: number;
   manager_weekly_travel_allowance: number;
-  managers_expenses: number;
+  'Managers expenses': number;
 }
 
 declare module '*.json' {
