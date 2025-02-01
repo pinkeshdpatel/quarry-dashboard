@@ -24,15 +24,18 @@ function Dashboard() {
 
   // Calculate expense breakdown for pie chart
   const expenseBreakdown = [
-    { name: 'Maintenance', value: transactions.reduce((sum, item) => sum + (item.maintenance_expense || 0), 0) },
-    { name: 'Driver Allowance', value: transactions.reduce((sum, item) => sum + (item.driver_allowance || 0), 0) },
-    { name: 'Diesel', value: transactions.reduce((sum, item) => sum + (item.diesel || 0), 0) },
-    { name: 'Fleet Charges', value: transactions.reduce((sum, item) => sum + (item.fleet_charges || 0), 0) },
+    { name: 'Maintenance', value: transactions.reduce((sum, item) => sum + (Number(item.maintenance_expense) || 0), 0) },
+    { name: 'Driver Allowance', value: transactions.reduce((sum, item) => sum + (Number(item.driver_allowance) || 0), 0) },
+    { name: 'Diesel', value: transactions.reduce((sum, item) => sum + (Number(item.diesel) || 0), 0) },
+    { name: 'Fleet Charges', value: transactions.reduce((sum, item) => sum + (Number(item.fleet_charges) || 0), 0) },
     { name: 'Manager Expenses', value: transactions.reduce((sum, item) => sum + (Number(item['Managers expenses']) || 0), 0) }
-  ];
+  ].filter(item => item.value > 0); // Only show expenses that have values
 
   // Calculate total manager expenses
-  const totalManagerExpenses = transactions.reduce((sum, item) => sum + (Number(item['Managers expenses']) || 0), 0);
+  const totalManagerExpenses = transactions.reduce((sum, item) => {
+    const expense = Number(item['Managers expenses']);
+    return sum + (isNaN(expense) ? 0 : expense);
+  }, 0);
 
   // Prepare data for revenue trend
   const trendData = transactions.map(item => ({
@@ -169,7 +172,7 @@ function Dashboard() {
                   cx="50%"
                   cy="50%"
                   labelLine={true}
-                  label={({ name, percent }) => `${name} (${(percent * 100).toFixed(0)}%)`}
+                  label={({ name, value }) => `${name}: ₹${value.toLocaleString()}`}
                   outerRadius={80}
                   fill="#8884d8"
                   dataKey="value"

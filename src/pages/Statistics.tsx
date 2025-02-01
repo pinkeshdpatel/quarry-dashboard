@@ -44,10 +44,11 @@ const Statistics = () => {
         manager_expenses: 0,
       };
     }
-    acc[monthYear].revenue += transaction.sale_price || 0;
-    acc[monthYear].profit += transaction.profit || 0;
+    acc[monthYear].revenue += Number(transaction.sale_price) || 0;
+    acc[monthYear].profit += Number(transaction.profit) || 0;
     acc[monthYear].transactions += 1;
-    acc[monthYear].manager_expenses += Number(transaction['Managers expenses']) || 0;
+    const managerExpense = Number(transaction['Managers expenses']);
+    acc[monthYear].manager_expenses += isNaN(managerExpense) ? 0 : managerExpense;
     return acc;
   }, {});
 
@@ -84,10 +85,13 @@ const Statistics = () => {
 
   // Calculate summary statistics
   const transactions = transactionsData as QuarryData[];
-  const totalRevenue = transactions?.reduce((sum: number, t: QuarryData) => sum + (t.sale_price || 0), 0) || 0;
-  const totalProfit = transactions?.reduce((sum: number, t: QuarryData) => sum + (t.profit || 0), 0) || 0;
-  const totalQuantity = transactions?.reduce((sum: number, t: QuarryData) => sum + (t.limestone_rate || 0), 0) || 0;
-  const totalManagerExpenses = transactions?.reduce((sum: number, t: QuarryData) => sum + (Number(t['Managers expenses']) || 0), 0) || 0;
+  const totalRevenue = transactions?.reduce((sum: number, t: QuarryData) => sum + (Number(t.sale_price) || 0), 0) || 0;
+  const totalProfit = transactions?.reduce((sum: number, t: QuarryData) => sum + (Number(t.profit) || 0), 0) || 0;
+  const totalQuantity = transactions?.reduce((sum: number, t: QuarryData) => sum + (Number(t.limestone_rate) || 0), 0) || 0;
+  const totalManagerExpenses = transactions?.reduce((sum: number, t: QuarryData) => {
+    const expense = Number(t['Managers expenses']);
+    return sum + (isNaN(expense) ? 0 : expense);
+  }, 0) || 0;
   const averageOrderValue = totalRevenue / (transactions?.length || 1);
 
   // Process customer data
@@ -125,10 +129,11 @@ const Statistics = () => {
         transactions: 0,
       };
     }
-    acc[managerName].total_expenses += Number(transaction['Managers expenses']) || 0;
-    acc[managerName].salary += transaction.manager_salary || 0;
-    acc[managerName].food_allowance += transaction.manager_weekly_food_allowance || 0;
-    acc[managerName].travel_allowance += transaction.manager_weekly_travel_allowance || 0;
+    const managerExpense = Number(transaction['Managers expenses']);
+    acc[managerName].total_expenses += isNaN(managerExpense) ? 0 : managerExpense;
+    acc[managerName].salary += Number(transaction.manager_salary) || 0;
+    acc[managerName].food_allowance += Number(transaction.manager_weekly_food_allowance) || 0;
+    acc[managerName].travel_allowance += Number(transaction.manager_weekly_travel_allowance) || 0;
     acc[managerName].transactions += 1;
     return acc;
   }, {});
@@ -140,9 +145,15 @@ const Statistics = () => {
     }))
     .sort((a, b) => b.total_expenses - a.total_expenses);
 
-  // Process expense breakdown
+  // Process expense breakdown for pie chart
   const expenseBreakdown = [
-    { name: 'Total Manager Expenses', value: transactions?.reduce((sum: number, t: QuarryData) => sum + (Number(t['Managers expenses']) || 0), 0) || 0 }
+    { 
+      name: 'Manager Expenses', 
+      value: transactions?.reduce((sum: number, t: QuarryData) => {
+        const expense = Number(t['Managers expenses']);
+        return sum + (isNaN(expense) ? 0 : expense);
+      }, 0) || 0 
+    }
   ];
 
   return (
