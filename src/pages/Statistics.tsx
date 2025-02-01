@@ -36,7 +36,7 @@ const Statistics = () => {
 
   // Process data for monthly revenue
   const monthlyRevenue = (transactionsData as QuarryData[])?.reduce((acc: Record<string, MonthlyData>, transaction: QuarryData) => {
-    const date = new Date(transaction.loading_date);
+    const date = new Date(transaction['Loading Date']);
     const monthYear = `${date.getMonth() + 1}/${date.getFullYear()}`;
     
     if (!acc[monthYear]) {
@@ -47,13 +47,15 @@ const Statistics = () => {
         manager_expenses: 0,
       };
     }
-    acc[monthYear].revenue += Number(transaction.sale_price) || 0;
-    acc[monthYear].profit += Number(transaction.profit) || 0;
+    acc[monthYear].revenue += Number(transaction['Sale Price']) || 0;
+    acc[monthYear].profit += Number(transaction['Profit']) || 0;
     acc[monthYear].transactions += 1;
     
-    // Check if the value exists and is a number
     const managerExpense = Number(transaction['Managers expenses']);
-    console.log('Manager expense for month:', monthYear, 'value:', transaction['Managers expenses'], 'converted:', managerExpense);
+    console.log('Manager expense for month:', monthYear, 
+                'Manager:', transaction['Manager Name'],
+                'Expense:', transaction['Managers expenses'],
+                'Salary:', transaction['Manager Salary']);
     acc[monthYear].manager_expenses += isNaN(managerExpense) ? 0 : managerExpense;
     
     return acc;
@@ -92,14 +94,17 @@ const Statistics = () => {
 
   // Calculate summary statistics
   const transactions = transactionsData as QuarryData[];
-  const totalRevenue = transactions?.reduce((sum: number, t: QuarryData) => sum + (Number(t.sale_price) || 0), 0) || 0;
-  const totalProfit = transactions?.reduce((sum: number, t: QuarryData) => sum + (Number(t.profit) || 0), 0) || 0;
-  const totalQuantity = transactions?.reduce((sum: number, t: QuarryData) => sum + (Number(t.limestone_rate) || 0), 0) || 0;
+  const totalRevenue = transactions?.reduce((sum: number, t: QuarryData) => sum + (Number(t['Sale Price']) || 0), 0) || 0;
+  const totalProfit = transactions?.reduce((sum: number, t: QuarryData) => sum + (Number(t['Profit']) || 0), 0) || 0;
+  const totalQuantity = transactions?.reduce((sum: number, t: QuarryData) => sum + (Number(t['Stats Data']) || 0), 0) || 0;
   
   // Calculate total manager expenses with logging
   const totalManagerExpenses = transactions?.reduce((sum: number, t: QuarryData) => {
     const expense = Number(t['Managers expenses']);
-    console.log('Manager expense item:', t['Managers expenses'], 'converted:', expense);
+    console.log('Manager expense item:', 
+                'Manager:', t['Manager Name'],
+                'Expense:', t['Managers expenses'],
+                'Salary:', t['Manager Salary']);
     return sum + (isNaN(expense) ? 0 : expense);
   }, 0) || 0;
 

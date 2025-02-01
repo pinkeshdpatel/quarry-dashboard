@@ -27,25 +27,18 @@ function Dashboard() {
 
   // Calculate expense breakdown for pie chart
   const expenseBreakdown = [
-    { name: 'Maintenance', value: transactions.reduce((sum, item) => sum + (Number(item.maintenace_expense) || 0), 0) },
-    { name: 'Driver Allowance', value: transactions.reduce((sum, item) => sum + (Number(item.driver_allownace) || 0), 0) },
-    { name: 'Diesel', value: transactions.reduce((sum, item) => sum + (Number(item.diesel) || 0), 0) },
-    { name: 'Weightment', value: transactions.reduce((sum, item) => sum + (Number(item.weightment_charge) || 0), 0) }
+    { name: 'Maintenance', value: transactions.reduce((sum, item) => sum + (Number(item['maintenace expense']) || 0), 0) },
+    { name: 'Driver Allowance', value: transactions.reduce((sum, item) => sum + (Number(item['Driver Allownace']) || 0), 0) },
+    { name: 'Diesel', value: transactions.reduce((sum, item) => sum + (Number(item['Diesel']) || 0), 0) },
+    { name: 'Weightment', value: transactions.reduce((sum, item) => sum + (Number(item['Weightment Charge']) || 0), 0) }
   ];
 
   // Add manager expenses to breakdown if they exist
   const managerExpensesTotal = transactions.reduce((sum, item) => {
-    // Try different possible column names
-    const expense = Number(
-      item['Managers expenses'] || 
-      item['managers expenses'] || 
-      item['Managers Expenses'] ||
-      item['MANAGERS EXPENSES'] || 
-      item['managers_expenses'] ||
-      0
-    );
+    const expense = Number(item['Managers expenses']);
     console.log('Raw manager expense value:', item['Managers expenses'], 
-                'Alternative:', item['managers expenses'],
+                'Manager Name:', item['Manager Name'],
+                'Manager Salary:', item['Manager Salary'],
                 'Full item:', item);
     if (!isNaN(expense) && expense > 0) {
       return sum + expense;
@@ -59,28 +52,21 @@ function Dashboard() {
 
   // Calculate total manager expenses
   const totalManagerExpenses = transactions.reduce((sum, item) => {
-    const expense = Number(
-      item['Managers expenses'] || 
-      item['managers expenses'] || 
-      item['Managers Expenses'] ||
-      item['MANAGERS EXPENSES'] || 
-      item['managers_expenses'] ||
-      0
-    );
+    const expense = Number(item['Managers expenses']);
     if (!isNaN(expense) && expense > 0) {
-      console.log('Found manager expense:', expense, 'for item:', item);
+      console.log('Found manager expense:', expense, 'for manager:', item['Manager Name']);
       return sum + expense;
     }
     return sum;
   }, 0);
 
-  console.log('Total manager expenses:', totalManagerExpenses, 'Raw transactions:', transactions);
+  console.log('Total manager expenses:', totalManagerExpenses);
 
   // Prepare data for revenue trend
   const trendData = transactions.map(item => ({
-    date: item.loading_date,
-    revenue: item.sale_price,
-    profit: item.profit
+    date: item['Loading Date'],
+    revenue: item['Sale Price'],
+    profit: item['Profit']
   }));
 
   // Filter data based on search term
