@@ -31,6 +31,9 @@ const Statistics = () => {
     );
   }
 
+  // Log the first transaction to check the data structure
+  console.log('First transaction:', transactionsData?.[0]);
+
   // Process data for monthly revenue
   const monthlyRevenue = (transactionsData as QuarryData[])?.reduce((acc: Record<string, MonthlyData>, transaction: QuarryData) => {
     const date = new Date(transaction.loading_date);
@@ -47,8 +50,12 @@ const Statistics = () => {
     acc[monthYear].revenue += Number(transaction.sale_price) || 0;
     acc[monthYear].profit += Number(transaction.profit) || 0;
     acc[monthYear].transactions += 1;
+    
+    // Check if the value exists and is a number
     const managerExpense = Number(transaction['Managers expenses']);
+    console.log('Manager expense for month:', monthYear, 'value:', transaction['Managers expenses'], 'converted:', managerExpense);
     acc[monthYear].manager_expenses += isNaN(managerExpense) ? 0 : managerExpense;
+    
     return acc;
   }, {});
 
@@ -88,10 +95,16 @@ const Statistics = () => {
   const totalRevenue = transactions?.reduce((sum: number, t: QuarryData) => sum + (Number(t.sale_price) || 0), 0) || 0;
   const totalProfit = transactions?.reduce((sum: number, t: QuarryData) => sum + (Number(t.profit) || 0), 0) || 0;
   const totalQuantity = transactions?.reduce((sum: number, t: QuarryData) => sum + (Number(t.limestone_rate) || 0), 0) || 0;
+  
+  // Calculate total manager expenses with logging
   const totalManagerExpenses = transactions?.reduce((sum: number, t: QuarryData) => {
     const expense = Number(t['Managers expenses']);
+    console.log('Manager expense item:', t['Managers expenses'], 'converted:', expense);
     return sum + (isNaN(expense) ? 0 : expense);
   }, 0) || 0;
+
+  console.log('Total manager expenses:', totalManagerExpenses);
+
   const averageOrderValue = totalRevenue / (transactions?.length || 1);
 
   // Process customer data
@@ -117,7 +130,7 @@ const Statistics = () => {
     .sort((a, b) => b.revenue - a.revenue)
     .slice(0, 5);
 
-  // Process manager data
+  // Process manager data with detailed logging
   const managerStats = transactions?.reduce((acc: Record<string, ManagerStats>, transaction: QuarryData) => {
     const managerName = transaction['Manager Name'] || 'Unknown';
     if (!acc[managerName]) {
@@ -129,11 +142,27 @@ const Statistics = () => {
         transactions: 0,
       };
     }
+    
     const managerExpense = Number(transaction['Managers expenses']);
+    const salary = Number(transaction['Manager Salary']);
+    const foodAllowance = Number(transaction['Manager weekly food allowance']);
+    const travelAllowance = Number(transaction['Manager weekly travel allowance']);
+
+    console.log('Manager:', managerName, {
+      expense: transaction['Managers expenses'],
+      convertedExpense: managerExpense,
+      salary: transaction['Manager Salary'],
+      convertedSalary: salary,
+      food: transaction['Manager weekly food allowance'],
+      convertedFood: foodAllowance,
+      travel: transaction['Manager weekly travel allowance'],
+      convertedTravel: travelAllowance
+    });
+
     acc[managerName].total_expenses += isNaN(managerExpense) ? 0 : managerExpense;
-    acc[managerName].salary += Number(transaction['Manager Salary']) || 0;
-    acc[managerName].food_allowance += Number(transaction['Manager weekly food allowance']) || 0;
-    acc[managerName].travel_allowance += Number(transaction['Manager weekly travel allowance']) || 0;
+    acc[managerName].salary += isNaN(salary) ? 0 : salary;
+    acc[managerName].food_allowance += isNaN(foodAllowance) ? 0 : foodAllowance;
+    acc[managerName].travel_allowance += isNaN(travelAllowance) ? 0 : travelAllowance;
     acc[managerName].transactions += 1;
     return acc;
   }, {});

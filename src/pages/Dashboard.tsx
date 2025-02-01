@@ -22,13 +22,24 @@ function Dashboard() {
   const stats = statsData as any;
   const transactions = transactionsData as any[];
 
+  // Log the first transaction to check the data structure
+  console.log('First transaction:', transactions[0]);
+
   // Calculate expense breakdown for pie chart
   const expenseBreakdown = [
     { name: 'Maintenance', value: transactions.reduce((sum, item) => sum + (Number(item.maintenance_expense) || 0), 0) },
     { name: 'Driver Allowance', value: transactions.reduce((sum, item) => sum + (Number(item.driver_allowance) || 0), 0) },
     { name: 'Diesel', value: transactions.reduce((sum, item) => sum + (Number(item.diesel) || 0), 0) },
     { name: 'Fleet Charges', value: transactions.reduce((sum, item) => sum + (Number(item.fleet_charges) || 0), 0) },
-    { name: 'Manager Expenses', value: transactions.reduce((sum, item) => sum + (Number(item['Managers expenses']) || 0), 0) }
+    { 
+      name: 'Manager Expenses', 
+      value: transactions.reduce((sum, item) => {
+        // Check if the value exists and is a number
+        const expense = Number(item['Managers expenses']);
+        console.log('Manager expense for item:', item['Managers expenses'], 'converted:', expense);
+        return sum + (isNaN(expense) ? 0 : expense);
+      }, 0)
+    }
   ].filter(item => item.value > 0); // Only show expenses that have values
 
   // Calculate total manager expenses
@@ -36,6 +47,8 @@ function Dashboard() {
     const expense = Number(item['Managers expenses']);
     return sum + (isNaN(expense) ? 0 : expense);
   }, 0);
+
+  console.log('Total manager expenses:', totalManagerExpenses);
 
   // Prepare data for revenue trend
   const trendData = transactions.map(item => ({
