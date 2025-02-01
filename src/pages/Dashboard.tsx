@@ -27,25 +27,33 @@ function Dashboard() {
 
   // Calculate expense breakdown for pie chart
   const expenseBreakdown = [
-    { name: 'Maintenance', value: transactions.reduce((sum, item) => sum + (Number(item.maintenance_expense) || 0), 0) },
-    { name: 'Driver Allowance', value: transactions.reduce((sum, item) => sum + (Number(item.driver_allowance) || 0), 0) },
+    { name: 'Maintenance', value: transactions.reduce((sum, item) => sum + (Number(item.maintenace_expense) || 0), 0) },
+    { name: 'Driver Allowance', value: transactions.reduce((sum, item) => sum + (Number(item.driver_allownace) || 0), 0) },
     { name: 'Diesel', value: transactions.reduce((sum, item) => sum + (Number(item.diesel) || 0), 0) },
-    { name: 'Fleet Charges', value: transactions.reduce((sum, item) => sum + (Number(item.fleet_charges) || 0), 0) },
-    { 
-      name: 'Manager Expenses', 
-      value: transactions.reduce((sum, item) => {
-        // Check if the value exists and is a number
-        const expense = Number(item['Managers expenses']);
-        console.log('Manager expense for item:', item['Managers expenses'], 'converted:', expense);
-        return sum + (isNaN(expense) ? 0 : expense);
-      }, 0)
+    { name: 'Weightment', value: transactions.reduce((sum, item) => sum + (Number(item.weightment_charge) || 0), 0) }
+  ];
+
+  // Add manager expenses to breakdown if they exist
+  const managerExpensesTotal = transactions.reduce((sum, item) => {
+    const expense = Number(item['Managers expenses']);
+    if (!isNaN(expense) && expense > 0) {
+      return sum + expense;
     }
-  ].filter(item => item.value > 0); // Only show expenses that have values
+    return sum;
+  }, 0);
+
+  if (managerExpensesTotal > 0) {
+    expenseBreakdown.push({ name: 'Manager Expenses', value: managerExpensesTotal });
+  }
 
   // Calculate total manager expenses
   const totalManagerExpenses = transactions.reduce((sum, item) => {
     const expense = Number(item['Managers expenses']);
-    return sum + (isNaN(expense) ? 0 : expense);
+    if (!isNaN(expense) && expense > 0) {
+      console.log('Found manager expense:', expense, 'for item:', item);
+      return sum + expense;
+    }
+    return sum;
   }, 0);
 
   console.log('Total manager expenses:', totalManagerExpenses);

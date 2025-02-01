@@ -132,7 +132,12 @@ const Statistics = () => {
 
   // Process manager data with detailed logging
   const managerStats = transactions?.reduce((acc: Record<string, ManagerStats>, transaction: QuarryData) => {
-    const managerName = transaction['Manager Name'] || 'Unknown';
+    // Only process transactions that have manager data
+    if (!transaction['Manager Name'] || !transaction['Managers expenses']) {
+      return acc;
+    }
+
+    const managerName = transaction['Manager Name'];
     if (!acc[managerName]) {
       acc[managerName] = {
         salary: 0,
@@ -148,22 +153,22 @@ const Statistics = () => {
     const foodAllowance = Number(transaction['Manager weekly food allowance']);
     const travelAllowance = Number(transaction['Manager weekly travel allowance']);
 
-    console.log('Manager:', managerName, {
-      expense: transaction['Managers expenses'],
-      convertedExpense: managerExpense,
-      salary: transaction['Manager Salary'],
-      convertedSalary: salary,
-      food: transaction['Manager weekly food allowance'],
-      convertedFood: foodAllowance,
-      travel: transaction['Manager weekly travel allowance'],
-      convertedTravel: travelAllowance
-    });
+    if (!isNaN(managerExpense) && managerExpense > 0) {
+      console.log('Found valid manager expense:', {
+        manager: managerName,
+        expense: managerExpense,
+        salary,
+        foodAllowance,
+        travelAllowance
+      });
 
-    acc[managerName].total_expenses += isNaN(managerExpense) ? 0 : managerExpense;
-    acc[managerName].salary += isNaN(salary) ? 0 : salary;
-    acc[managerName].food_allowance += isNaN(foodAllowance) ? 0 : foodAllowance;
-    acc[managerName].travel_allowance += isNaN(travelAllowance) ? 0 : travelAllowance;
-    acc[managerName].transactions += 1;
+      acc[managerName].total_expenses += managerExpense;
+      acc[managerName].salary += !isNaN(salary) ? salary : 0;
+      acc[managerName].food_allowance += !isNaN(foodAllowance) ? foodAllowance : 0;
+      acc[managerName].travel_allowance += !isNaN(travelAllowance) ? travelAllowance : 0;
+      acc[managerName].transactions += 1;
+    }
+
     return acc;
   }, {});
 
