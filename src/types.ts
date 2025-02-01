@@ -14,10 +14,10 @@ export interface QuarryData {
   profit: number;
   maintenance_expense: number;
   fleet_charges: number;
-  manager_name: string;
-  manager_salary: number;
-  manager_weekly_food_allowance: number;
-  manager_weekly_travel_allowance: number;
+  'Manager Name': string;
+  'Manager Salary': number;
+  'Manager weekly food allowance': number;
+  'Manager weekly travel allowance': number;
   'Managers expenses': number;
 }
 

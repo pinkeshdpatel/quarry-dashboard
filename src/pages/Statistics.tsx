@@ -119,7 +119,7 @@ const Statistics = () => {
 
   // Process manager data
   const managerStats = transactions?.reduce((acc: Record<string, ManagerStats>, transaction: QuarryData) => {
-    const managerName = transaction.manager_name || 'Unknown';
+    const managerName = transaction['Manager Name'] || 'Unknown';
     if (!acc[managerName]) {
       acc[managerName] = {
         salary: 0,
@@ -131,9 +131,9 @@ const Statistics = () => {
     }
     const managerExpense = Number(transaction['Managers expenses']);
     acc[managerName].total_expenses += isNaN(managerExpense) ? 0 : managerExpense;
-    acc[managerName].salary += Number(transaction.manager_salary) || 0;
-    acc[managerName].food_allowance += Number(transaction.manager_weekly_food_allowance) || 0;
-    acc[managerName].travel_allowance += Number(transaction.manager_weekly_travel_allowance) || 0;
+    acc[managerName].salary += Number(transaction['Manager Salary']) || 0;
+    acc[managerName].food_allowance += Number(transaction['Manager weekly food allowance']) || 0;
+    acc[managerName].travel_allowance += Number(transaction['Manager weekly travel allowance']) || 0;
     acc[managerName].transactions += 1;
     return acc;
   }, {});
