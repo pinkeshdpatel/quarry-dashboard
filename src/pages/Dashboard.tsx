@@ -27,8 +27,18 @@ function Dashboard() {
     { name: 'Maintenance', value: transactions.reduce((sum, item) => sum + (item.maintenace_expense || 0), 0) },
     { name: 'Driver Allowance', value: transactions.reduce((sum, item) => sum + (item.driver_allownace || 0), 0) },
     { name: 'Diesel', value: transactions.reduce((sum, item) => sum + (item.diesel || 0), 0) },
-    { name: 'Fleet Charges', value: transactions.reduce((sum, item) => sum + (item.fleet_charges || 0), 0) }
+    { name: 'Fleet Charges', value: transactions.reduce((sum, item) => sum + (item.fleet_charges || 0), 0) },
+    { name: 'Manager Salary', value: transactions.reduce((sum, item) => sum + (item.manager_salary || 0), 0) },
+    { name: 'Manager Food', value: transactions.reduce((sum, item) => sum + (item.manager_weekly_food_allowance || 0), 0) },
+    { name: 'Manager Travel', value: transactions.reduce((sum, item) => sum + (item.manager_weekly_travel_allowance || 0), 0) }
   ];
+
+  // Calculate total manager expenses
+  const totalManagerExpenses = transactions.reduce((sum, item) => 
+    sum + (item.manager_salary || 0) + 
+    (item.manager_weekly_food_allowance || 0) + 
+    (item.manager_weekly_travel_allowance || 0), 0
+  );
 
   // Prepare data for revenue trend
   const trendData = transactions.map(item => ({
@@ -90,7 +100,7 @@ function Dashboard() {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
         <StatCard
           title="Total Revenue"
           value={stats.total_revenue}
@@ -105,6 +115,11 @@ function Dashboard() {
           title="Total Expenses"
           value={stats.total_expenses}
           change={-3.1}
+        />
+        <StatCard
+          title="Manager Expenses"
+          value={totalManagerExpenses}
+          change={0}
         />
       </div>
 

@@ -1,8 +1,24 @@
 import React from 'react';
 import { useGoogleSheets } from '../hooks/useGoogleSheets';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, LineChart, Line, PieChart, Pie, Cell } from 'recharts';
+import { QuarryData } from '../types';
 
 const COLORS = ['#10B981', '#3B82F6', '#F59E0B', '#EF4444', '#8B5CF6', '#EC4899'];
+
+interface MonthlyData {
+  revenue: number;
+  profit: number;
+  transactions: number;
+  manager_expenses: number;
+}
+
+interface ManagerStats {
+  salary: number;
+  food_allowance: number;
+  travel_allowance: number;
+  total_expenses: number;
+  transactions: number;
+}
 
 const Statistics = () => {
   const { data: transactionsData, loading } = useGoogleSheets('transactions');
@@ -16,8 +32,8 @@ const Statistics = () => {
   }
 
   // Process data for monthly revenue
-  const monthlyRevenue = transactionsData?.reduce((acc: any, transaction: any) => {
-    const date = new Date(transaction.date);
+  const monthlyRevenue = (transactionsData as QuarryData[])?.reduce((acc: Record<string, MonthlyData>, transaction: QuarryData) => {
+    const date = new Date(transaction.loading_date);
     const monthYear = `${date.getMonth() + 1}/${date.getFullYear()}`;
     
     if (!acc[monthYear]) {
@@ -25,19 +41,25 @@ const Statistics = () => {
         revenue: 0,
         profit: 0,
         transactions: 0,
+        manager_expenses: 0,
       };
     }
     acc[monthYear].revenue += transaction.sale_price || 0;
     acc[monthYear].profit += transaction.profit || 0;
     acc[monthYear].transactions += 1;
+    acc[monthYear].manager_expenses += 
+      (transaction.manager_salary || 0) + 
+      (transaction.manager_weekly_food_allowance || 0) + 
+      (transaction.manager_weekly_travel_allowance || 0);
     return acc;
   }, {});
 
-  const revenueData = Object.entries(monthlyRevenue || {}).map(([month, data]: [string, any]) => ({
+  const revenueData = Object.entries(monthlyRevenue || {}).map(([month, data]: [string, MonthlyData]) => ({
     month,
     revenue: data.revenue,
     profit: data.profit,
     transactions: data.transactions,
+    manager_expenses: data.manager_expenses,
   }));
 
   // Process data for material types
@@ -64,10 +86,16 @@ const Statistics = () => {
   }));
 
   // Calculate summary statistics
-  const totalRevenue = transactionsData?.reduce((sum: number, t: any) => sum + (t.sale_price || 0), 0) || 0;
-  const totalProfit = transactionsData?.reduce((sum: number, t: any) => sum + (t.profit || 0), 0) || 0;
-  const totalQuantity = transactionsData?.reduce((sum: number, t: any) => sum + (t.limestone_rate || 0), 0) || 0;
-  const averageOrderValue = totalRevenue / (transactionsData?.length || 1);
+  const transactions = transactionsData as QuarryData[];
+  const totalRevenue = transactions?.reduce((sum: number, t: QuarryData) => sum + (t.sale_price || 0), 0) || 0;
+  const totalProfit = transactions?.reduce((sum: number, t: QuarryData) => sum + (t.profit || 0), 0) || 0;
+  const totalQuantity = transactions?.reduce((sum: number, t: QuarryData) => sum + (t.limestone_rate || 0), 0) || 0;
+  const totalManagerExpenses = transactions?.reduce((sum: number, t: QuarryData) => 
+    sum + (t.manager_salary || 0) + 
+    (t.manager_weekly_food_allowance || 0) + 
+    (t.manager_weekly_travel_allowance || 0), 0
+  ) || 0;
+  const averageOrderValue = totalRevenue / (transactions?.length || 1);
 
   // Process customer data
   const customerStats = transactionsData?.reduce((acc: any, transaction: any) => {
@@ -92,6 +120,43 @@ const Statistics = () => {
     .sort((a, b) => b.revenue - a.revenue)
     .slice(0, 5);
 
+  // Process manager data
+  const managerStats = transactions?.reduce((acc: Record<string, ManagerStats>, transaction: QuarryData) => {
+    const managerName = transaction.manager_name || 'Unknown';
+    if (!acc[managerName]) {
+      acc[managerName] = {
+        salary: 0,
+        food_allowance: 0,
+        travel_allowance: 0,
+        total_expenses: 0,
+        transactions: 0,
+      };
+    }
+    acc[managerName].salary += transaction.manager_salary || 0;
+    acc[managerName].food_allowance += transaction.manager_weekly_food_allowance || 0;
+    acc[managerName].travel_allowance += transaction.manager_weekly_travel_allowance || 0;
+    acc[managerName].total_expenses += 
+      (transaction.manager_salary || 0) + 
+      (transaction.manager_weekly_food_allowance || 0) + 
+      (transaction.manager_weekly_travel_allowance || 0);
+    acc[managerName].transactions += 1;
+    return acc;
+  }, {});
+
+  const managerData = Object.entries(managerStats || {})
+    .map(([name, data]: [string, ManagerStats]) => ({
+      name,
+      ...data,
+    }))
+    .sort((a, b) => b.total_expenses - a.total_expenses);
+
+  // Process expense breakdown
+  const expenseBreakdown = [
+    { name: 'Salary', value: transactions?.reduce((sum: number, t: QuarryData) => sum + (t.manager_salary || 0), 0) || 0 },
+    { name: 'Food Allowance', value: transactions?.reduce((sum: number, t: QuarryData) => sum + (t.manager_weekly_food_allowance || 0), 0) || 0 },
+    { name: 'Travel Allowance', value: transactions?.reduce((sum: number, t: QuarryData) => sum + (t.manager_weekly_travel_allowance || 0), 0) || 0 },
+  ];
+
   return (
     <div className="space-y-8">
       <h1 className="text-2xl font-bold mb-6">Statistics</h1>
@@ -111,26 +176,104 @@ const Statistics = () => {
           <p className="text-2xl font-bold">{totalQuantity.toLocaleString()} tons</p>
         </div>
         <div className="bg-white p-6 rounded-lg shadow">
-          <h3 className="text-gray-500 text-sm">Average Order Value</h3>
-          <p className="text-2xl font-bold">₹{averageOrderValue.toLocaleString(undefined, { maximumFractionDigits: 0 })}</p>
+          <h3 className="text-gray-500 text-sm">Manager Expenses</h3>
+          <p className="text-2xl font-bold">₹{totalManagerExpenses.toLocaleString()}</p>
         </div>
       </div>
 
-      {/* Monthly Revenue Chart */}
-      <div className="bg-white p-6 rounded-lg shadow">
-        <h2 className="text-xl font-semibold mb-4">Monthly Revenue & Profit</h2>
-        <div className="h-80">
-          <ResponsiveContainer width="100%" height="100%">
-            <LineChart data={revenueData}>
-              <CartesianGrid strokeDasharray="3 3" />
-              <XAxis dataKey="month" />
-              <YAxis />
-              <Tooltip formatter={(value) => `₹${value.toLocaleString()}`} />
-              <Legend />
-              <Line type="monotone" dataKey="revenue" stroke="#10B981" name="Revenue" />
-              <Line type="monotone" dataKey="profit" stroke="#3B82F6" name="Profit" />
-            </LineChart>
-          </ResponsiveContainer>
+      {/* Monthly Charts */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        {/* Monthly Revenue & Profit Chart */}
+        <div className="bg-white p-6 rounded-lg shadow">
+          <h2 className="text-xl font-semibold mb-4">Monthly Revenue & Profit</h2>
+          <div className="h-80">
+            <ResponsiveContainer width="100%" height="100%">
+              <LineChart data={revenueData}>
+                <CartesianGrid strokeDasharray="3 3" />
+                <XAxis dataKey="month" />
+                <YAxis />
+                <Tooltip formatter={(value) => `₹${value.toLocaleString()}`} />
+                <Legend />
+                <Line type="monotone" dataKey="revenue" stroke="#10B981" name="Revenue" />
+                <Line type="monotone" dataKey="profit" stroke="#3B82F6" name="Profit" />
+              </LineChart>
+            </ResponsiveContainer>
+          </div>
+        </div>
+
+        {/* Monthly Manager Expenses Chart */}
+        <div className="bg-white p-6 rounded-lg shadow">
+          <h2 className="text-xl font-semibold mb-4">Monthly Manager Expenses</h2>
+          <div className="h-80">
+            <ResponsiveContainer width="100%" height="100%">
+              <LineChart data={revenueData}>
+                <CartesianGrid strokeDasharray="3 3" />
+                <XAxis dataKey="month" />
+                <YAxis />
+                <Tooltip formatter={(value) => `₹${value.toLocaleString()}`} />
+                <Legend />
+                <Line type="monotone" dataKey="manager_expenses" stroke="#8B5CF6" name="Manager Expenses" />
+              </LineChart>
+            </ResponsiveContainer>
+          </div>
+        </div>
+      </div>
+
+      {/* Manager Expenses Section */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        {/* Manager Expenses Breakdown */}
+        <div className="bg-white p-6 rounded-lg shadow">
+          <h2 className="text-xl font-semibold mb-4">Manager Expenses Breakdown</h2>
+          <div className="h-80">
+            <ResponsiveContainer width="100%" height="100%">
+              <PieChart>
+                <Pie
+                  data={expenseBreakdown}
+                  dataKey="value"
+                  nameKey="name"
+                  cx="50%"
+                  cy="50%"
+                  outerRadius={100}
+                  label={(entry) => `${entry.name}: ₹${entry.value.toLocaleString()}`}
+                >
+                  {expenseBreakdown.map((entry, index) => (
+                    <Cell key={entry.name} fill={COLORS[index % COLORS.length]} />
+                  ))}
+                </Pie>
+                <Tooltip formatter={(value) => `₹${value.toLocaleString()}`} />
+                <Legend />
+              </PieChart>
+            </ResponsiveContainer>
+          </div>
+        </div>
+
+        {/* Manager Details Table */}
+        <div className="bg-white p-6 rounded-lg shadow">
+          <h2 className="text-xl font-semibold mb-4">Manager Details</h2>
+          <div className="overflow-x-auto">
+            <table className="min-w-full">
+              <thead>
+                <tr className="border-b">
+                  <th className="text-left py-2">Manager</th>
+                  <th className="text-right py-2">Salary</th>
+                  <th className="text-right py-2">Food</th>
+                  <th className="text-right py-2">Travel</th>
+                  <th className="text-right py-2">Total</th>
+                </tr>
+              </thead>
+              <tbody>
+                {managerData.map((manager) => (
+                  <tr key={manager.name} className="border-b">
+                    <td className="py-2">{manager.name}</td>
+                    <td className="text-right">₹{manager.salary.toLocaleString()}</td>
+                    <td className="text-right">₹{manager.food_allowance.toLocaleString()}</td>
+                    <td className="text-right">₹{manager.travel_allowance.toLocaleString()}</td>
+                    <td className="text-right">₹{manager.total_expenses.toLocaleString()}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         </div>
       </div>
 
