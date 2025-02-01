@@ -59,7 +59,7 @@ async function getAllData() {
 
     const response = await sheets.spreadsheets.values.get({
       spreadsheetId: process.env.GOOGLE_SHEET_ID,
-      range: `${sheetName}!A1:O100`,
+      range: `${sheetName}!A1:Z100`,
     });
     
     if (!response.data.values) {
@@ -81,6 +81,18 @@ async function getAllData() {
 }
 
 // Routes
+app.get('/api/transactions', async (req, res) => {
+  try {
+    const data = await getAllData();
+    console.log('Sending transactions data:', data.length, 'records');
+    console.log('Sample transaction:', data[0]);
+    res.json(data);
+  } catch (error) {
+    console.error('Error in /api/transactions:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
 app.get('/api/stats', async (req, res) => {
   try {
     const data = await getAllData();
@@ -91,6 +103,7 @@ app.get('/api/stats', async (req, res) => {
       total_revenue: data.reduce((sum, row) => sum + (row.sale_price || 0), 0),
       total_profit: data.reduce((sum, row) => sum + (row.profit || 0), 0),
       total_expenses: data.reduce((sum, row) => sum + (row.maintenace_expense || 0) + (row.fleet_charges || 0), 0),
+      total_manager_expenses: data.reduce((sum, row) => sum + (row.managers_expenses || 0), 0),
       total_transactions: data.length,
       average_profit_per_transaction: data.length > 0 ? data.reduce((sum, row) => sum + (row.profit || 0), 0) / data.length : 0,
       total_limestone: data.reduce((sum, row) => sum + (row.limestone_rate || 0), 0),
@@ -145,16 +158,6 @@ app.get('/api/fleet', async (req, res) => {
     res.json(fleet);
   } catch (error) {
     console.error('Error in /api/fleet:', error);
-    res.status(500).json({ error: error.message });
-  }
-});
-
-app.get('/api/transactions', async (req, res) => {
-  try {
-    const data = await getAllData();
-    res.json(data);
-  } catch (error) {
-    console.error('Error in /api/transactions:', error);
     res.status(500).json({ error: error.message });
   }
 });
